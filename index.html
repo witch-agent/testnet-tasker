@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testnet Tasker Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #050505;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #111111;
+            --text: #f5f5f5;
+            --text-secondary: #a1a1a1;
+            --text-muted: #525252;
+            --accent: #f59e0b;
+            --accent-glow: rgba(245, 158, 11, 0.15);
+            --success: #22c55e;
+            --border: #171717;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem; }
+        
+        header { text-align: center; margin-bottom: 2rem; }
+        .logo { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; }
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 5vw, 2.5rem); font-weight: 600; margin-bottom: 0.5rem; }
+        h1 span { color: var(--accent); }
+        .subtitle { color: var(--text-secondary); }
+
+        /* Stats */
+        .stats-row { display: flex; justify-content: center; gap: 3rem; margin-bottom: 2rem; }
+        .stat { text-align: center; }
+        .stat-number { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* Progress */
+        .progress-container { margin-bottom: 2rem; }
+        .progress-bar { height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); border-radius: 100px; transition: width 0.5s ease; }
+        .progress-text { display: flex; justify-content: space-between; margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
+
+        /* Quick Add */
+        .quick-add { display: flex; gap: 0.75rem; margin-bottom: 2rem; }
+        .quick-add input { flex: 1; padding: 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; }
+        .quick-add input:focus { outline: none; border-color: var(--accent); }
+        .quick-add button { padding: 1rem 1.5rem; background: var(--accent); border: none; border-radius: 10px; color: #000; font-family: 'Space Grotesk', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .quick-add button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--accent-glow); }
+
+        /* Categories */
+        .categories { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .cat-btn { padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 100px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+        .cat-btn:hover { border-color: var(--text-muted); }
+        .cat-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+        /* Task List */
+        .tasks-section { margin-bottom: 2rem; }
+        .section-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+        .task-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .task { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; transition: all 0.2s; }
+        .task:hover { border-color: var(--border-hover, #333); }
+        .task.completed { opacity: 0.4; }
+        .task.completed .task-text { text-decoration: line-through; }
+        .task-checkbox { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+        .task-checkbox:hover { border-color: var(--accent); }
+        .task-checkbox.checked { background: var(--accent); border-color: var(--accent); }
+        .task-checkbox.checked::after { content: '✓'; color: #000; font-size: 12px; font-weight: bold; }
+        .task-text { flex: 1; font-size: 0.9rem; }
+        .task-meta { display: flex; gap: 0.5rem; align-items: center; }
+        .task-priority { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
+        .priority-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .priority-medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .priority-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .task-date { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); }
+        .task-delete { padding: 0.3rem 0.5rem; background: transparent; border: 1px solid transparent; border-radius: 4px; color: var(--text-muted); cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .task-delete:hover { border-color: #ef4444; color: #ef4444; }
+
+        .empty { text-align: center; padding: 3rem; color: var(--text-muted); }
+
+        /* Footer */
+        footer { text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 3rem; }
+        footer p { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">&lt;/&gt; witch-agent</div>
+            <h1>Testnet <span>Tasker</span></h1>
+            <p class="subtitle">Daily airdrop farming checklist</p>
+        </header>
+
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-number" id="total">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="completed">0</div>
+                <div class="stat-label">Done</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="streak">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressPercent">0%</span>
+                <span id="progressLabel">Complete</span>
+            </div>
+        </div>
+
+        <div class="quick-add">
+            <input type="text" id="newTask" placeholder="Add new task... (e.g., Bridge to Arbitrum)">
+            <button onclick="addTask()">Add</button>
+        </div>
+
+        <div class="categories">
+            <button class="cat-btn active" data-cat="all">All</button>
+            <button class="cat-btn" data-cat="bridge">Bridge</button>
+            <button class="cat-btn" data-cat="swap">Swap</button>
+            <button class="cat-btn" data-cat="nft">NFT</button>
+            <button class="cat-btn" data-cat="social">Social</button>
+            <button class="cat-btn" data-cat="other">Other</button>
+        </div>
+
+        <div class="tasks-section">
+            <div class="section-title">Today's Tasks</div>
+            <div class="task-list" id="taskList"></div>
+        </div>
+
+        <footer><p>Built by witch-agent | Auto-saves to localStorage</p></footer>
+    </div>
+
+    <script>
+        // Default tasks
+        const defaultTasks = [
+            { text: 'Bridge assets to testnet', cat: 'bridge', priority: 'high', completed: false },
+            { text: 'Swap on DEX testnet', cat: 'swap', priority: 'high', completed: false },
+            { text: 'Add liquidity to pool', cat: 'swap', priority: 'medium', completed: false },
+            { text: 'Mint NFT on testnet', cat: 'nft', priority: 'low', completed: false },
+            { text: 'Interact with 3 protocols', cat: 'other', priority: 'medium', completed: false },
+            { text: 'Check social media for updates', cat: 'social', priority: 'low', completed: false },
+        ];
+
+        let tasks = JSON.parse(localStorage.getItem('testnet-tasks')) || defaultTasks;
+        let currentCat = 'all';
+
+        function save() {
+            localStorage.setItem('testnet-tasks', JSON.stringify(tasks));
+            render();
+        }
+
+        function render() {
+            const list = document.getElementById('taskList');
+            const filtered = currentCat === 'all' ? tasks : tasks.filter(t => t.cat === currentCat);
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty">No tasks. Add one above!</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map((task, i) => `
+                <div class="task ${task.completed ? 'completed' : ''}">
+                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggle(${tasks.indexOf(task)})"></div>
+                    <span class="task-text">${task.text}</span>
+                    <div class="task-meta">
+                        <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                        <button class="task-delete" onclick="del(${tasks.indexOf(task)})">×</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('total').textContent = total;
+            document.getElementById('completed').textContent = completed;
+            document.getElementById('streak').textContent = localStorage.getItem('testnet-streak') || 0;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+        }
+
+        function toggle(i) {
+            tasks[i].completed = !tasks[i].completed;
+            save();
+        }
+
+        function addTask() {
+            const input = document.getElementById('newTask');
+            const text = input.value.trim();
+            if (text) {
+                tasks.unshift({ text, cat: 'other', priority: 'medium', completed: false });
+                input.value = '';
+                save();
+            }
+        }
+
+        function del(i) {
+            tasks.splice(i, 1);
+            save();
+        }
+
+        // Category filter
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCat = btn.dataset.cat;
+                render();
+            });
+        });
+
+        // Enter key
+        document.getElementById('newTask').addEventListener('keypress', e => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        render();
+    </script>
+</body>
+</html>
